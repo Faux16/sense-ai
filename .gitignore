@@ -1,3 +1,4 @@
-sense
+/sense
 sense.db
 *.log
+.DS_Store

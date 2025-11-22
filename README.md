@@ -11,30 +11,16 @@ SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool desi
 - **Network Traffic Analysis**: Captures HTTP/HTTPS traffic using libpcap and gopacket to detect AI API calls (e.g., `api.openai.com`, `api.huggingface.co`).
 - **Endpoint Scanning**: Simulates detection of AI-related processes (e.g., Python with TensorFlow) via a placeholder implementation.
 - **REST API**: Exposes findings through a JSON-based API (`/findings`) powered by Gin.
+- **Real-time Dashboard**: A modern React-based UI to visualize findings, network traffic, and threat levels.
 - **SQLite Storage**: Logs findings with details (source/destination IPs, ports, headers, severity) in a local SQLite database.
 - **Command-Line Interface**: Built with Cobra for easy scanning (`sense scan`) and API server management (`sense api`).
-- **Detailed Output**: Reports findings with structured details, including IPs, ports, HTTP methods, headers, and payloads.
-
----
-
-## Current Status
-
-- **Version**: Pre-alpha (under development).
-
-### Known Issues
-- HTTPS API calls (e.g., OpenAI, Hugging Face) are not reliably detected due to encryption, resulting in garbled or skipped payloads.
-- Endpoint scanning is a placeholder; real process inspection is not yet implemented.
-
-### Next Steps
-- Improve HTTPS detection with DNS-based methods or decryption.
-- Replace endpoint placeholder with process inspection (e.g., eBPF).
-- Expand regex patterns for additional AI APIs.
-- Prepare for Black Hat MEA demo with enhanced output.
 
 ---
 
 ## Prerequisites
+
 - **Go**: Version 1.23.2 or later
+- **Node.js**: Version 18 or later (for Frontend)
 - **libpcap**: Version 1.10.5 or later (installed via Homebrew on macOS)
 - **macOS**: Tested on Apple Silicon (M1/M2)
 
@@ -42,23 +28,25 @@ SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool desi
 
 ## Installation
 
-### Clone the Repository
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Faux16/sense-ai.git
 cd sense-ai
 ```
 
-### Install Go Dependencies
+### 2. Install Backend Dependencies
 ```bash
-go get github.com/google/gopacket
-go get github.com/google/gopacket/layers
-go get github.com/spf13/cobra
-go get github.com/mattn/go-sqlite3
-go get github.com/gin-gonic/gin
 go mod tidy
 ```
 
-### Install libpcap (macOS)
+### 3. Install Frontend Dependencies
+```bash
+cd internal/ui/frontend
+npm install
+cd ../../..
+```
+
+### 4. Install libpcap (macOS)
 ```bash
 brew install libpcap
 export PKG_CONFIG_PATH=/opt/homebrew/Cellar/libpcap/1.10.5/lib/pkgconfig:$PKG_CONFIG_PATH
@@ -66,109 +54,73 @@ export CGO_CFLAGS="-I/opt/homebrew/Cellar/libpcap/1.10.5/include"
 export CGO_LDFLAGS="-L/opt/homebrew/Cellar/libpcap/1.10.5/lib"
 ```
 
-### Build SENSE
+### 5. Build SENSE Backend
 ```bash
-go build -o sense
+go build -o sense cmd/sense/main.go
 ```
 
 ---
 
 ## Usage
 
-### Run Network Scan
-Scan for AI API calls and endpoint processes:
+### 1. Start the Frontend
+Open a terminal and run:
 ```bash
-sudo ./sense scan --interface en0 --duration 30
+cd internal/ui/frontend
+npm run dev
 ```
-- `--interface`: Network interface (e.g., `en0` for Wi-Fi, `lo0` for localhost)
-- `--duration`: Scan duration in seconds
+The UI will be available at [http://localhost:5173/ui/](http://localhost:5173/ui/).
 
-> Requires `sudo` for libpcap packet capture.
+### 2. Start the Backend
+You can run the backend in two modes:
 
-### Output Example
-```
-----------------------------------------
-Detected AI-related process:
-- Process: python3
-- Library: TensorFlow
-- Action: Placeholder detection (simulated AI model execution)
-| Severity: 0.7
-----------------------------------------
-----------------------------------------
-ID: 1
-Type: endpoint
-Details:
-Detected AI-related process:
-- Process: python3
-- Library: TensorFlow
-- Action: Placeholder detection (simulated AI model execution)
-Time: 2025-06-21T12:52:15+05:30
-Severity: 0.70
-----------------------------------------
-```
-
-### Start REST API
-Expose findings via a REST API:
+#### Mode A: Full Functionality (Requires Sudo)
+Enables network traffic analysis. Requires root privileges to capture packets.
 ```bash
-./sense api --port 8080
+# Use /tmp/sense.db to avoid permission issues with root
+sudo ./sense api --port 8080 --db /tmp/sense.db
 ```
 
-### Access Findings
+#### Mode B: Limited Functionality (No Sudo)
+Runs without network scanning (Endpoint detection only).
 ```bash
-curl http://localhost:8080/findings
+./sense api --port 8080 --db /tmp/sense.db
 ```
 
-Returns JSON with findings (network and endpoint).
+> **Note**: We use `--db /tmp/sense.db` to avoid file permission conflicts between `sudo` and user execution.
 
-#### Example Output
-```json
-[
-  {
-    "id": 1,
-    "type": "endpoint",
-    "details": "Detected AI-related process:\n- Process: python3\n- Library: TensorFlow\n- Action: Placeholder detection (simulated AI model execution)",
-    "timestamp": "2025-06-21T12:52:15+05:30",
-    "severity": 0.7
-  }
-]
-```
+---
+
+## Troubleshooting
+
+### Database Permission Errors
+If you see `attempt to write a readonly database` or `permission denied`:
+1. Use the `--db /tmp/sense.db` flag as shown above.
+2. Or, fix ownership of the local DB: `sudo chown $(whoami) sense.db`.
+
+### Network Scanning Fails
+If you see `permission denied` for `/dev/bpf0`:
+- You must run the backend with `sudo`.
+
+### Frontend "Black Screen"
+- Ensure you are accessing the correct URL: `http://localhost:5173/ui/`.
+- Check the browser console for errors.
 
 ---
 
 ## Project Structure
 ```
-main.go       # Core implementation (network scanning, REST API, endpoint placeholder)
-go.mod, go.sum
-.gitignore    # Excludes sense, sense.db, *.log
+cmd/sense/      # Entry point (main.go)
+internal/
+  ├── action/   # Remediation logic (block IP, kill process)
+  ├── api/      # REST API server
+  ├── detector/ # Network and Endpoint detectors
+  ├── policy/   # Policy engine and rules
+  ├── storage/  # SQLite database handler
+  └── ui/       # Frontend React application
 ```
 
 ---
 
-## Contributing
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/<name>`)
-3. Commit changes (`git commit -m "Description"`)
-4. Push to the branch (`git push origin feature/<name>`)
-5. Open a pull request
-
----
-
-## Future Work
-- **HTTPS Detection**: Implement DNS-based detection or MITM proxy for encrypted API calls (e.g., OpenAI, Hugging Face).
-- **Endpoint Scanning**: Replace placeholder with eBPF or process inspection for real-time monitoring.
-- **Testing Environment**: Develop a mock HTTP server and Docker-based test lab to simulate AI API calls for reliable testing.
-- **Regex Enhancement**: Expand patterns to cover additional AI APIs.
-- **Visualization**: Add a web dashboard for findings.
-- **Cross-Platform Support**: Extend compatibility to Linux and Windows.
-
----
-
 ## License
-MIT License (pending formal addition).
-
----
-
-## Contact
-For questions or collaboration, contact via [GitHub Issues](https://github.com/Faux16/sense-ai/issues).
-
+MIT License.

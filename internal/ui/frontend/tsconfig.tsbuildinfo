@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/dashboard.tsx","./src/main.tsx","./src/react-simple-maps.d.ts","./src/vite-env.d.ts","./src/components/worldmap.tsx","./src/components/ui/badge.tsx","./src/components/ui/card.tsx","./src/lib/api.ts","./src/lib/utils.ts","./src/types/index.ts"],"version":"5.9.3"}
