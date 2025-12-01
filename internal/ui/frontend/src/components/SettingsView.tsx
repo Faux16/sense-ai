@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { Settings, Server, Bell, Palette, Database, Info, CheckCircle, XCircle } from 'lucide-react';
+import { Server, Bell, Palette, Database, Info, CheckCircle, XCircle } from 'lucide-react';
 
 export default function SettingsView() {
     const [notifications, setNotifications] = useState(true);
@@ -131,8 +131,8 @@ export default function SettingsView() {
                             <button
                                 onClick={() => setTheme('dark')}
                                 className={`p-3 rounded-lg border-2 transition-all ${theme === 'dark'
-                                        ? 'border-indigo-500 bg-indigo-500/10'
-                                        : 'border-gray-700 bg-gray-800 hover:border-gray-600'
+                                    ? 'border-indigo-500 bg-indigo-500/10'
+                                    : 'border-gray-700 bg-gray-800 hover:border-gray-600'
                                     }`}
                             >
                                 <div className="text-white font-semibold">Dark</div>
@@ -141,8 +141,8 @@ export default function SettingsView() {
                             <button
                                 onClick={() => setTheme('light')}
                                 className={`p-3 rounded-lg border-2 transition-all ${theme === 'light'
-                                        ? 'border-indigo-500 bg-indigo-500/10'
-                                        : 'border-gray-700 bg-gray-800 hover:border-gray-600'
+                                    ? 'border-indigo-500 bg-indigo-500/10'
+                                    : 'border-gray-700 bg-gray-800 hover:border-gray-600'
                                     }`}
                             >
                                 <div className="text-white font-semibold">Light</div>
