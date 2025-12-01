@@ -73,7 +73,8 @@ export default function WorldMap({ findings }: WorldMapProps) {
 
     return (
         <div className="relative w-full h-full bg-black rounded-lg overflow-hidden border border-gray-800">
-            <svg width="100%" height="100%" viewBox="0 0 1009 666" preserveAspectRatio="xMidYMid meet" className="w-full h-full">
+            <svg width="100%" height="100%" viewBox="0 0 1009 666" preserveAspectRatio="xMidYMid meet" className="w-full h-full" role="img" aria-label="World map showing network traffic connections between source locations and AI service destinations">
+                <title>Global Network Traffic Map</title>
                 <defs>
                     <filter id="glow">
                         <feGaussianBlur stdDeviation="2" result="coloredBlur" />
