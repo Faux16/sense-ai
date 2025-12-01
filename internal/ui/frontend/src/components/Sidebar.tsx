@@ -68,6 +68,8 @@ export default function Sidebar({ currentSection, onSectionChange }: SidebarProp
                         <button
                             key={item.id}
                             onClick={() => onSectionChange(item.id)}
+                            aria-label={item.label}
+                            aria-current={isActive ? 'page' : undefined}
                             className={`
                                 w-full flex items-center gap-3 px-4 py-3 rounded-lg
                                 transition-all duration-200

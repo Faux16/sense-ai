@@ -32,6 +32,8 @@ func (s *Server) Broadcast(f storage.Finding) {
 		select {
 		case ch <- f:
 		default:
+			// Channel buffer full, subscriber too slow - log dropped finding
+			fmt.Printf("[WARN] Dropped finding broadcast (id=%d, type=%s) - subscriber buffer full\n", f.ID, f.Type)
 		}
 	}
 }

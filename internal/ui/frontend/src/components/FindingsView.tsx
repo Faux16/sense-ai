@@ -415,7 +415,13 @@ export default function FindingsView({ findings }: FindingsViewProps) {
                                                         <div>
                                                             <span className="text-gray-400">Source Metadata:</span>
                                                             <pre className="mt-1 p-2 bg-gray-900 rounded text-indigo-300 overflow-auto">
-                                                                {JSON.stringify(JSON.parse(finding.source || '{}'), null, 2)}
+                                                                {(() => {
+                                                                    try {
+                                                                        return JSON.stringify(JSON.parse(finding.source || '{}'), null, 2);
+                                                                    } catch {
+                                                                        return finding.source || '{}';
+                                                                    }
+                                                                })()}
                                                             </pre>
                                                         </div>
                                                     </div>
