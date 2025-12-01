@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Finding } from '../types';
-import { Search, Filter, Download, CheckSquare, Square, Calendar, TrendingUp, PieChart as PieChartIcon } from 'lucide-react';
-import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Search, Filter, Download, CheckSquare, Square, TrendingUp, PieChart as PieChartIcon } from 'lucide-react';
+import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { groupRelatedFindings, calculateSeverityDistribution } from '../lib/insights';
 
 interface FindingsViewProps {
@@ -14,15 +14,13 @@ type SeverityFilter = 'all' | 'low' | 'medium' | 'high' | 'critical';
 type TypeFilter = 'all' | 'network' | 'endpoint';
 type TimeFilter = '1h' | '24h' | '7d' | '30d' | 'all';
 
-const COLORS = ['#10b981', '#f59e0b', '#f97316', '#ef4444'];
-
 export default function FindingsView({ findings }: FindingsViewProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
     const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
     const [timeFilter, setTimeFilter] = useState<TimeFilter>('24h');
-    const [selectedFindings, setSelectedFindings] = useState<Set<string>>(new Set());
-    const [expandedFinding, setExpandedFinding] = useState<string | null>(null);
+    const [selectedFindings, setSelectedFindings] = useState<Set<number>>(new Set());
+    const [expandedFinding, setExpandedFinding] = useState<number | null>(null);
 
     // Filter findings
     const filteredFindings = useMemo(() => {
@@ -62,7 +60,7 @@ export default function FindingsView({ findings }: FindingsViewProps) {
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(f =>
-                f.id.toLowerCase().includes(query) ||
+                f.id.toString().toLowerCase().includes(query) ||
                 f.details.toLowerCase().includes(query) ||
                 f.type.toLowerCase().includes(query) ||
                 (f.source && f.source.toLowerCase().includes(query))
@@ -128,7 +126,7 @@ export default function FindingsView({ findings }: FindingsViewProps) {
         return 'Low';
     };
 
-    const toggleSelection = (id: string) => {
+    const toggleSelection = (id: number) => {
         const newSelection = new Set(selectedFindings);
         if (newSelection.has(id)) {
             newSelection.delete(id);

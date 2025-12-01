@@ -79,7 +79,7 @@ const mockPolicies: Policy[] = [
     },
 ];
 
-export default function PoliciesView({ findings }: PoliciesViewProps) {
+export default function PoliciesView({ }: PoliciesViewProps) {
     const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
     const [policies] = useState<Policy[]>(mockPolicies);
 
@@ -218,8 +218,8 @@ export default function PoliciesView({ findings }: PoliciesViewProps) {
                                 key={policy.id}
                                 onClick={() => setSelectedPolicy(policy)}
                                 className={`p-4 rounded-lg border transition-all cursor-pointer ${policy.enabled
-                                        ? 'bg-gray-900 border-gray-800 hover:border-indigo-500/30'
-                                        : 'bg-gray-900/50 border-gray-800/50 opacity-60'
+                                    ? 'bg-gray-900 border-gray-800 hover:border-indigo-500/30'
+                                    : 'bg-gray-900/50 border-gray-800/50 opacity-60'
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-3">

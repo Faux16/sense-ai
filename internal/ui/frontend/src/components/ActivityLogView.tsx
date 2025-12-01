@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Finding } from '../types';
-import { Activity, FileText, Settings, AlertTriangle, CheckCircle, Download, Search } from 'lucide-react';
+import { Activity, FileText, Settings, AlertTriangle, Download, Search } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface ActivityLogViewProps {
