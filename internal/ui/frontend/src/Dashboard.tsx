@@ -10,6 +10,26 @@ import WorldMap from './components/WorldMap';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'];
 
+// Type definitions for chart data
+interface SeverityDataItem {
+    name: string;
+    value: number;
+    fill: string;
+    range: [number, number];
+}
+
+interface TypeDataItem {
+    name: string;
+    value: number;
+    type: string;
+}
+
+interface TimelineDataItem {
+    index: number;
+    severity: number;
+    finding: Finding;
+}
+
 export default function Dashboard() {
     const [findings, setFindings] = useState<Finding[]>([]);
     const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
@@ -64,6 +84,13 @@ export default function Dashboard() {
         return 'text-green-400';
     };
 
+    const getSeverityLabel = (severity: number): string => {
+        if (severity >= 0.8) return 'Critical';
+        if (severity >= 0.7) return 'High';
+        if (severity >= 0.5) return 'Medium';
+        return 'Low';
+    };
+
     const getMetadata = (finding: Finding): SourceMetadata => {
         try {
             return JSON.parse(finding.source || '{}');
@@ -82,20 +109,27 @@ export default function Dashboard() {
         }
     };
 
-    const handleSeverityClick = (data: any) => {
-        const [min, max] = data.range;
+    // Chart click handlers with proper type safety
+    // Recharts passes extended data objects that include our custom properties
+    const handleSeverityClick = (data: unknown) => {
+        const item = data as SeverityDataItem | null;
+        if (!item?.range) return;
+        const [min, max] = item.range;
         const filtered = findings.filter(f => f.severity >= min && f.severity < max);
-        setFilterModal({ open: true, title: `${data.name} Severity Findings`, findings: filtered });
+        setFilterModal({ open: true, title: `${item.name} Severity Findings`, findings: filtered });
     };
 
-    const handleTypeClick = (data: any) => {
-        const filtered = findings.filter(f => f.type === data.type);
-        setFilterModal({ open: true, title: `${data.name} Findings`, findings: filtered });
+    const handleTypeClick = (data: unknown) => {
+        const item = data as TypeDataItem | null;
+        if (!item?.type) return;
+        const filtered = findings.filter(f => f.type === item.type);
+        setFilterModal({ open: true, title: `${item.name} Findings`, findings: filtered });
     };
 
-    const handleTimelineClick = (data: any) => {
-        if (data && data.finding) {
-            setSelectedFinding(data.finding);
+    const handleTimelineClick = (data: unknown) => {
+        const chartData = data as { activePayload?: Array<{ payload: TimelineDataItem }> } | null;
+        if (chartData?.activePayload?.[0]?.payload?.finding) {
+            setSelectedFinding(chartData.activePayload[0].payload.finding);
         }
     };
 
@@ -128,7 +162,7 @@ export default function Dashboard() {
             <div className="max-w-7xl mx-auto px-6 py-6">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <Card onClick={() => handleStatClick('all')} className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20 hover:border-indigo-500/40 transition-all cursor-pointer hover:scale-105">
+                    <Card onClick={() => handleStatClick('all')} role="button" tabIndex={0} aria-label={`View all ${stats.total} findings`} onKeyDown={(e) => e.key === 'Enter' && handleStatClick('all')} className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/20 hover:border-indigo-500/40 transition-all cursor-pointer hover:scale-105">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm text-gray-400">Total Findings</span>
@@ -139,7 +173,7 @@ export default function Dashboard() {
                         </CardContent>
                     </Card>
 
-                    <Card onClick={() => handleStatClick('critical')} className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer hover:scale-105">
+                    <Card onClick={() => handleStatClick('critical')} role="button" tabIndex={0} aria-label={`View ${stats.critical} critical findings`} onKeyDown={(e) => e.key === 'Enter' && handleStatClick('critical')} className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-red-500/20 hover:border-red-500/40 transition-all cursor-pointer hover:scale-105">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm text-gray-400">Critical</span>
@@ -242,8 +276,8 @@ export default function Dashboard() {
                             <ResponsiveContainer width="100%" height={200}>
                                 <PieChart>
                                     <Pie data={typeData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label onClick={handleTypeClick} cursor="pointer">
-                                        {typeData.map((_, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        {typeData.map((entry, index) => (
+                                            <Cell key={`cell-${entry.type}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
                                     <Tooltip contentStyle={{ backgroundColor: '#1a2142', border: '1px solid #6366f1' }} />
@@ -285,7 +319,9 @@ export default function Dashboard() {
                                                 </td>
                                                 <td className="py-3 px-4 max-w-xs truncate">{f.details}</td>
                                                 <td className={`py-3 px-4 font-mono ${getSeverityColor(f.severity)}`}>
-                                                    {f.severity.toFixed(2)}
+                                                    <span aria-label={`Severity: ${getSeverityLabel(f.severity)}`}>
+                                                        {f.severity.toFixed(2)} ({getSeverityLabel(f.severity)})
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))}
@@ -333,8 +369,8 @@ export default function Dashboard() {
                                                         {new Date(f.timestamp).toLocaleString()}
                                                     </span>
                                                 </div>
-                                                <span className={`font-mono font-bold ${getSeverityColor(f.severity)}`}>
-                                                    {f.severity.toFixed(2)}
+                                                <span className={`font-mono font-bold ${getSeverityColor(f.severity)}`} aria-label={`Severity: ${getSeverityLabel(f.severity)}`}>
+                                                    {f.severity.toFixed(2)} ({getSeverityLabel(f.severity)})
                                                 </span>
                                             </div>
                                             <p className="text-sm text-gray-300">{f.details}</p>
@@ -363,28 +399,28 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <label className="text-xs uppercase text-gray-400">Type</label>
-                                <div className="text-2xl font-bold mt-1">{selectedFinding.type.toUpperCase()}</div>
+                                <label id="type-label" className="text-xs uppercase text-gray-400">Type</label>
+                                <div className="text-2xl font-bold mt-1" aria-labelledby="type-label">{selectedFinding.type.toUpperCase()}</div>
                             </div>
                             <div>
-                                <label className="text-xs uppercase text-gray-400">Severity</label>
-                                <div className={`text-2xl font-bold mt-1 ${getSeverityColor(selectedFinding.severity)}`}>
-                                    {selectedFinding.severity.toFixed(2)}
+                                <label id="severity-label" className="text-xs uppercase text-gray-400">Severity</label>
+                                <div className={`text-2xl font-bold mt-1 ${getSeverityColor(selectedFinding.severity)}`} aria-labelledby="severity-label">
+                                    {selectedFinding.severity.toFixed(2)} ({getSeverityLabel(selectedFinding.severity)})
                                 </div>
                             </div>
                             <div>
-                                <label className="text-xs uppercase text-gray-400">Timestamp</label>
-                                <div className="mt-1">{new Date(selectedFinding.timestamp).toLocaleString()}</div>
+                                <label id="timestamp-label" className="text-xs uppercase text-gray-400">Timestamp</label>
+                                <div className="mt-1" aria-labelledby="timestamp-label">{new Date(selectedFinding.timestamp).toLocaleString()}</div>
                             </div>
                             <div>
-                                <label className="text-xs uppercase text-gray-400">Details</label>
-                                <div className="mt-2 p-4 rounded-lg bg-black text-sm whitespace-pre-wrap">
+                                <label id="details-label" className="text-xs uppercase text-gray-400">Details</label>
+                                <div className="mt-2 p-4 rounded-lg bg-black text-sm whitespace-pre-wrap" aria-labelledby="details-label">
                                     {selectedFinding.details}
                                 </div>
                             </div>
                             <div>
-                                <label className="text-xs uppercase text-gray-400">Source Metadata</label>
-                                <pre className="mt-2 p-4 rounded-lg bg-black text-xs overflow-auto text-indigo-300">
+                                <label id="metadata-label" className="text-xs uppercase text-gray-400">Source Metadata</label>
+                                <pre className="mt-2 p-4 rounded-lg bg-black text-xs overflow-auto text-indigo-300" aria-labelledby="metadata-label">
                                     {JSON.stringify(getMetadata(selectedFinding), null, 2)}
                                 </pre>
                             </div>

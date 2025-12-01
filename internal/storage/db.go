@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -73,7 +74,13 @@ func (s *Store) GetFindings() ([]Finding, error) {
 			continue
 		}
 		f.Source = source.String
-		f.Timestamp, _ = time.Parse(time.RFC3339, ts)
+		parsedTime, err := time.Parse(time.RFC3339, ts)
+		if err != nil {
+			fmt.Printf("[WARN] Failed to parse timestamp '%s' for finding ID %d: %v\n", ts, f.ID, err)
+			f.Timestamp = time.Time{} // Zero value as fallback
+		} else {
+			f.Timestamp = parsedTime
+		}
 		list = append(list, f)
 	}
 	return list, nil

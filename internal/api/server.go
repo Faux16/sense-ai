@@ -83,7 +83,8 @@ func (s *Server) Start(port string) error {
 		c.SSEvent("connected", "true")
 		c.Writer.Flush()
 
-		notify := c.Writer.CloseNotify()
+		// Use request context instead of deprecated CloseNotify
+		ctx := c.Request.Context()
 
 		for {
 			select {
@@ -91,7 +92,7 @@ func (s *Server) Start(port string) error {
 				data, _ := json.Marshal(f)
 				c.SSEvent("finding", string(data))
 				c.Writer.Flush()
-			case <-notify:
+			case <-ctx.Done():
 				return
 			}
 		}

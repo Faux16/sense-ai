@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -60,7 +61,10 @@ func (e *Engine) Load(path string) error {
 	for i := range config.Policies {
 		if config.Policies[i].Regex != "" {
 			re, err := regexp.Compile(config.Policies[i].Regex)
-			if err == nil {
+			if err != nil {
+				fmt.Printf("[WARN] Failed to compile regex for policy '%s': %v (pattern: %s)\n",
+					config.Policies[i].Name, err, config.Policies[i].Regex)
+			} else {
 				config.Policies[i].regexCompiled = re
 			}
 		}

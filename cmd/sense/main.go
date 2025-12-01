@@ -112,6 +112,12 @@ func runSense(cmd *cobra.Command, args []string) {
 						}
 					}
 				}
+			case policy.ActionAlert:
+				// Alert action: only log the finding (no remediation needed)
+				fmt.Printf("[ALERT] %s - %s (Policy: %s, Severity: %.2f)\n", typ, details, rule.Name, sev)
+			default:
+				// Unknown action type - log for debugging
+				fmt.Printf("[WARN] Unknown policy action '%s' for rule: %s\n", rule.Action, rule.Name)
 			}
 		}
 
