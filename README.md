@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="Sense-ai.png" alt="SENSE Logo" width="200"/>
+  <img src="sense_logo.png" alt="SENSE Logo" width="200"/>
   <h1>SENSE: Shadow Exposure & eNterprise Surveillance for AI</h1>
   
   [![Go Version](https://img.shields.io/badge/Go-1.23.2+-00ADD8?style=flat&logo=go)](https://go.dev/)
@@ -12,6 +12,12 @@
 **SENSE** (Shadow Exposure & eNterprise Surveillance for AI) is a comprehensive security tool designed to detect and monitor unauthorized or "shadow" AI instances within enterprise environments. By analyzing network traffic and endpoint processes, SENSE identifies potential AI-related activities, such as API calls to external AI services (e.g., OpenAI, Hugging Face) or local AI model execution. This enhances enterprise visibility and mitigates risks associated with unapproved AI usage.
 
 > **Note**: This project is under active development for presentation at Black Hat MEA, focusing on robust detection of shadow AI in enterprise networks.
+
+## 📸 Demo
+
+<div align="center">
+  <img src="Sense-ai.png" alt="SENSE Dashboard Demo" width="800"/>
+</div>
 
 ---
 

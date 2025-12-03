@@ -13,6 +13,7 @@ import PoliciesView from './components/PoliciesView';
 import NetworkMapView from './components/NetworkMapView';
 import ActivityLogView from './components/ActivityLogView';
 import SettingsView from './components/SettingsView';
+import ExecutiveDashboardView from './components/ExecutiveDashboardView';
 import { calculateTrends } from './lib/insights';
 
 
@@ -198,6 +199,7 @@ export default function Dashboard() {
                 <div className="flex-1 overflow-y-auto">
                     <div className="max-w-7xl mx-auto px-6 py-6">
                         {/* Render different views based on current section */}
+                        {currentSection === 'executive' && <ExecutiveDashboardView findings={findings} />}
                         {currentSection === 'dashboard' && (
                             <>
                                 {/* Stats Grid */}
