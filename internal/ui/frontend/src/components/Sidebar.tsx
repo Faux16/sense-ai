@@ -7,7 +7,8 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
-    Activity
+    Activity,
+    TrendingUp
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -16,6 +17,7 @@ interface SidebarProps {
 }
 
 const menuItems = [
+    { id: 'executive', label: 'Executive View', icon: TrendingUp },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'findings', label: 'Findings', icon: FileSearch },
     { id: 'policies', label: 'Policies', icon: Shield },
@@ -37,25 +39,12 @@ export default function Sidebar({ currentSection, onSectionChange }: SidebarProp
             `}
         >
             {/* Logo Section */}
-            <div className="p-6 border-b border-gray-900 flex items-center justify-between">
-                {!isCollapsed && (
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                            <span className="text-white font-bold text-xl">S</span>
-                        </div>
-                        <div>
-                            <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                                SENSE
-                            </h1>
-                            <p className="text-xs text-gray-400">Shadow AI Detection</p>
-                        </div>
-                    </div>
-                )}
-                {isCollapsed && (
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto">
-                        <span className="text-white font-bold text-xl">S</span>
-                    </div>
-                )}
+            <div className="p-6 border-b border-gray-900 flex items-center justify-center">
+                <img
+                    src={`${import.meta.env.BASE_URL}${isCollapsed ? 'logo_collapse.png' : 'logo.png'}`}
+                    alt="SenseAI Logo"
+                    className={`${isCollapsed ? 'w-10 h-10' : 'w-40 h-auto'} rounded-xl object-contain transition-all duration-300`}
+                />
             </div>
 
             {/* Navigation Menu */}
