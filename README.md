@@ -3,8 +3,9 @@
   <h1>SENSE: Shadow Exposure & eNterprise Surveillance for AI</h1>
   
   [![Go Version](https://img.shields.io/badge/Go-1.23.2+-00ADD8?style=flat&logo=go)](https://go.dev/)
+  [![PyPI version](https://badge.fury.io/py/senseai.svg)](https://pypi.org/project/senseai/)
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-  [![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
+  [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg)](https://www.apple.com/macos/)
 </div>
 
 <br />
@@ -41,11 +42,17 @@
 - **Real-time Dashboard**: A modern React-based UI to visualize findings, network traffic, and threat levels.
 - **SQLite Storage**: Logs findings with details (source/destination IPs, ports, headers, severity) in a local SQLite database.
 - **Command-Line Interface**: Built with Cobra for easy scanning (`sense scan`) and API server management (`sense api`).
+- **Python Wrapper**: Easy-to-use Python package available on PyPI for seamless integration.
 
 ---
 
 ## 🛠 Prerequisites
 
+### For Python Package (Recommended)
+- **Python**: Version 3.8 or later
+- **libpcap**: Version 1.10.5 or later (for network scanning)
+
+### For Building from Source
 - **Go**: Version 1.23.2 or later
 - **Node.js**: Version 18 or later (for Frontend)
 - **libpcap**: Version 1.10.5 or later (installed via Homebrew on macOS)
@@ -55,7 +62,41 @@
 
 ## 📦 Installation
 
-### 1. Clone the Repository
+### Option 1: Python Package (Recommended)
+
+Install via pip:
+```bash
+pip install senseai
+```
+
+Then use the CLI:
+```bash
+# Start the backend server
+senseai start --port 8080
+
+# Check status
+senseai status
+
+# View findings
+senseai findings
+```
+
+Or use the Python API:
+```python
+from senseai import SenseClient, SenseServer
+
+# Start server and fetch findings
+with SenseServer(port=8080) as server:
+    client = SenseClient()
+    findings = client.get_findings()
+    print(f"Found {len(findings)} findings")
+```
+
+For more details, see the [Python package documentation](python/README.md).
+
+### Option 2: Build from Source
+
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/Faux16/sense-ai.git
 cd sense-ai
