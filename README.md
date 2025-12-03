@@ -1,14 +1,35 @@
-# SENSE: Shadow Exposure & eNterprise Surveillance for AI
+<div align="center">
+  <img src="Sense-ai.png" alt="SENSE Logo" width="200"/>
+  <h1>SENSE: Shadow Exposure & eNterprise Surveillance for AI</h1>
+  
+  [![Go Version](https://img.shields.io/badge/Go-1.23.2+-00ADD8?style=flat&logo=go)](https://go.dev/)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![Platform](https://img.shields.io/badge/Platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
+</div>
 
-SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool designed to detect and monitor unauthorized or "shadow" AI instances within enterprise environments. By analyzing network traffic and endpoint processes, SENSE identifies potential AI-related activities, such as API calls to external AI services (e.g., OpenAI, Hugging Face) or local AI model execution. This enhances enterprise visibility and mitigates risks associated with unapproved AI usage.
+<br />
 
-> This project is under active development for presentation at Black Hat MEA, focusing on robust detection of shadow AI in enterprise networks.
+**SENSE** (Shadow Exposure & eNterprise Surveillance for AI) is a comprehensive security tool designed to detect and monitor unauthorized or "shadow" AI instances within enterprise environments. By analyzing network traffic and endpoint processes, SENSE identifies potential AI-related activities, such as API calls to external AI services (e.g., OpenAI, Hugging Face) or local AI model execution. This enhances enterprise visibility and mitigates risks associated with unapproved AI usage.
+
+> **Note**: This project is under active development for presentation at Black Hat MEA, focusing on robust detection of shadow AI in enterprise networks.
 
 ---
 
-## Features
+## 📋 Table of Contents
 
-- **Network Traffic Analysis**: Captures HTTP/HTTPS traffic using libpcap and gopacket to detect AI API calls (e.g., `api.openai.com`, `api.huggingface.co`).
+- [Features](#-features)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Troubleshooting](#-troubleshooting)
+- [Project Structure](#-project-structure)
+- [License](#-license)
+
+---
+
+## 🚀 Features
+
+- **Network Traffic Analysis**: Captures HTTP/HTTPS traffic using `libpcap` and `gopacket` to detect AI API calls (e.g., `api.openai.com`, `api.huggingface.co`).
 - **Endpoint Scanning**: Simulates detection of AI-related processes (e.g., Python with TensorFlow) via a placeholder implementation.
 - **REST API**: Exposes findings through a JSON-based API (`/findings`) powered by Gin.
 - **Real-time Dashboard**: A modern React-based UI to visualize findings, network traffic, and threat levels.
@@ -17,7 +38,7 @@ SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool desi
 
 ---
 
-## Prerequisites
+## 🛠 Prerequisites
 
 - **Go**: Version 1.23.2 or later
 - **Node.js**: Version 18 or later (for Frontend)
@@ -26,7 +47,7 @@ SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool desi
 
 ---
 
-## Installation
+## 📦 Installation
 
 ### 1. Clone the Repository
 ```bash
@@ -61,7 +82,7 @@ go build -o sense cmd/sense/main.go
 
 ---
 
-## Usage
+## 💻 Usage
 
 ### 1. Start the Frontend
 Open a terminal and run:
@@ -91,7 +112,7 @@ Runs without network scanning (Endpoint detection only).
 
 ---
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 ### Database Permission Errors
 If you see `attempt to write a readonly database` or `permission denied`:
@@ -108,7 +129,7 @@ If you see `permission denied` for `/dev/bpf0`:
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 ```
 cmd/sense/      # Entry point (main.go)
 internal/
@@ -122,5 +143,5 @@ internal/
 
 ---
 
-## License
+## 📄 License
 MIT License.
