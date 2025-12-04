@@ -1,0 +1,43 @@
+policies:
+  # --- Network Policies ---
+  - name: "Block OpenAI API"
+    description: "Prevent access to OpenAI API endpoints"
+    target: "network"
+    match: 
+      - "api.openai.com"
+    action: "alert" # Change to 'block' to enforce
+    severity: 0.8
+
+  - name: "Detect HuggingFace"
+    description: "Monitor HuggingFace model downloads"
+    target: "network"
+    match:
+      - "huggingface.co"
+    action: "alert"
+    severity: 0.5
+
+  # --- DLP Policies ---
+  - name: "DLP: OpenAI API Key"
+    description: "Detect OpenAI API keys in traffic"
+    target: "payload"
+    regex: "sk-[a-zA-Z0-9]{48}"
+    action: "alert"
+    severity: 1.0
+
+  - name: "DLP: AWS Access Key"
+    description: "Detect AWS Access Keys"
+    target: "payload"
+    regex: "(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])"
+    action: "alert"
+    severity: 0.9
+
+  # --- Endpoint Policies ---
+  - name: "Unapproved AI Process"
+    description: "Detect local AI model servers"
+    target: "endpoint"
+    match:
+      - "ollama"
+      - "llama-server"
+      - "localai"
+    action: "alert" # Change to 'kill' to enforce
+    severity: 0.7

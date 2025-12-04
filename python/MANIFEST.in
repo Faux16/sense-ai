@@ -1,0 +1,5 @@
+include README.md
+include LICENSE
+include pyproject.toml
+recursive-include senseai *.py
+recursive-include senseai py.typed
