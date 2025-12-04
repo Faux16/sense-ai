@@ -9,7 +9,9 @@ import {
     predictNextHour,
     calculateSeverityDistribution,
 } from '../lib/insights';
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, Lightbulb, Activity, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Lightbulb, Activity, BarChart3, Download } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 interface InsightsPanelProps {
     findings: Finding[];
@@ -204,6 +206,154 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
         }
     };
 
+    const handleDownloadPDF = async () => {
+        const element = document.getElementById('insights-content');
+        if (!element) return;
+
+        // Create a loading state or feedback if needed
+        const originalText = document.body.style.cursor;
+        document.body.style.cursor = 'wait';
+
+        try {
+            // Create a clone of the element to manipulate for capture
+            const clone = element.cloneNode(true) as HTMLElement;
+
+            // Create a wrapper to hold the header and the content
+            const wrapper = document.createElement('div');
+            // Position fixed at 0,0 but behind everything to ensure it's "on screen" for capture
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.width = '800px'; // Fixed width for consistent PDF
+            wrapper.style.background = '#000000'; // Ensure solid background
+            wrapper.style.color = '#ffffff';
+            wrapper.style.fontFamily = 'Inter, sans-serif';
+            wrapper.style.padding = '40px';
+            wrapper.style.zIndex = '-9999'; // Behind everything
+            wrapper.style.visibility = 'visible'; // Must be visible to be captured
+
+            // Create Branded Header
+            const header = document.createElement('div');
+            header.style.display = 'flex';
+            header.style.alignItems = 'center';
+            header.style.justifyContent = 'space-between';
+            header.style.marginBottom = '30px';
+            header.style.borderBottom = '1px solid rgba(99, 102, 241, 0.3)';
+            header.style.paddingBottom = '20px';
+
+            // Logo Section
+            const logoContainer = document.createElement('div');
+            logoContainer.style.display = 'flex';
+            logoContainer.style.alignItems = 'center';
+            logoContainer.style.gap = '15px';
+
+            const logoImg = document.createElement('img');
+            logoImg.src = `${import.meta.env.BASE_URL}logo_collapse.png`;
+            logoImg.style.width = '40px';
+            logoImg.style.height = '40px';
+
+            const titleContainer = document.createElement('div');
+            const title = document.createElement('h1');
+            title.innerText = 'SENSE AI';
+            title.style.fontSize = '24px';
+            title.style.fontWeight = 'bold';
+            title.style.background = 'linear-gradient(to right, #818cf8, #c084fc, #22d3ee)';
+            title.style.webkitBackgroundClip = 'text';
+            title.style.webkitTextFillColor = 'transparent';
+            title.style.margin = '0';
+
+            const subtitle = document.createElement('p');
+            subtitle.innerText = 'Shadow Exposure & Enterprise Surveillance';
+            subtitle.style.fontSize = '10px';
+            subtitle.style.color = '#9ca3af';
+            subtitle.style.margin = '0';
+
+            titleContainer.appendChild(title);
+            titleContainer.appendChild(subtitle);
+            logoContainer.appendChild(logoImg);
+            logoContainer.appendChild(titleContainer);
+
+            // Report Info Section
+            const reportInfo = document.createElement('div');
+            reportInfo.style.textAlign = 'right';
+
+            const reportTitle = document.createElement('h2');
+            reportTitle.innerText = 'AI Security Insights Report';
+            reportTitle.style.fontSize = '16px';
+            reportTitle.style.fontWeight = '600';
+            reportTitle.style.color = '#e5e7eb';
+            reportTitle.style.margin = '0 0 5px 0';
+
+            const date = document.createElement('p');
+            date.innerText = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            date.style.fontSize = '12px';
+            date.style.color = '#9ca3af';
+            date.style.margin = '0';
+
+            reportInfo.appendChild(reportTitle);
+            reportInfo.appendChild(date);
+
+            header.appendChild(logoContainer);
+            header.appendChild(reportInfo);
+
+            // Add header and content to wrapper
+            wrapper.appendChild(header);
+
+            // Style the clone content to fit nicely
+            clone.style.background = 'transparent';
+            clone.style.padding = '0';
+            clone.style.margin = '0';
+
+            wrapper.appendChild(clone);
+
+            // Append to body to render
+            document.body.appendChild(wrapper);
+
+            // Wait for any images/fonts in clone to settle
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const dataUrl = await toPng(wrapper, {
+                quality: 1.0,
+                pixelRatio: 2, // Higher resolution
+                backgroundColor: '#000000',
+            });
+
+            // Remove wrapper
+            document.body.removeChild(wrapper);
+
+            // Get image properties to determine dimensions
+            // We create a temporary PDF just to get the image properties helper
+            const tempPdf = new jsPDF();
+            const imgProps = tempPdf.getImageProperties(dataUrl);
+
+            // Create the actual PDF with dimensions matching the image
+            // This ensures it's always one page, regardless of length
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [imgProps.width, imgProps.height]
+            });
+
+            // Set PDF background to black (for the whole custom page)
+            pdf.setFillColor(0, 0, 0);
+            pdf.rect(0, 0, imgProps.width, imgProps.height, 'F');
+
+            pdf.addImage(dataUrl, 'PNG', 0, 0, imgProps.width, imgProps.height);
+            pdf.save(`SENSE_AI_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert("Failed to generate PDF. Please try again.");
+        } finally {
+            document.body.style.cursor = originalText;
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
             <Card
@@ -223,16 +373,25 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
                                 <p className="text-xs text-gray-400 mt-1">Real-time risk analysis and recommendations</p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-white transition-colors"
-                        >
-                            ✕
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 rounded-md hover:bg-indigo-500/20 transition-colors"
+                            >
+                                <Download className="w-3 h-3" />
+                                Download Report
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
                 </CardHeader>
 
-                <CardContent className="p-6 space-y-6">
+                <CardContent id="insights-content" className="p-6 space-y-6">
                     {/* Risk Score Section */}
                     <div>
                         <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
