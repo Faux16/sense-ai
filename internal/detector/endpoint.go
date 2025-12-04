@@ -35,6 +35,7 @@ func (d *EndpointDetector) Start(interval time.Duration) {
 func (d *EndpointDetector) scanProcesses() {
 	procs, err := process.Processes()
 	if err != nil {
+		fmt.Printf("[WARN] Failed to enumerate processes: %v\n", err)
 		return
 	}
 
