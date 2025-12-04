@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "senseai"
+version = "0.1.0"
+description = "Python wrapper for SENSE: Shadow Exposure & eNterprise Surveillance for AI"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Sanket Sarkar", email = "sanket@example.com"}
+]
+keywords = ["security", "ai", "network-monitoring", "shadow-ai", "enterprise-security"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Networking :: Monitoring",
+]
+
+dependencies = [
+    "requests>=2.31.0",
+    "click>=8.1.0",
+    "psutil>=5.9.0",
+    "sseclient-py>=1.8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Faux16/sense-ai"
+Documentation = "https://github.com/Faux16/sense-ai#readme"
+Repository = "https://github.com/Faux16/sense-ai"
+Issues = "https://github.com/Faux16/sense-ai/issues"
+
+[project.scripts]
+senseai = "senseai.cli:main"
+
+[tool.setuptools]
+packages = ["senseai"]
+
+[tool.setuptools.package-data]
+senseai = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=senseai --cov-report=term-missing"
