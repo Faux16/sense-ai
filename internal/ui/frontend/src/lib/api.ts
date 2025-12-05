@@ -4,7 +4,8 @@ export const api = {
     async getFindings() {
         const res = await fetch(`${API_BASE}/findings`);
         if (!res.ok) throw new Error('Failed to fetch findings');
-        return res.json();
+        const data = await res.json();
+        return data || [];
     },
 
     createEventSource() {

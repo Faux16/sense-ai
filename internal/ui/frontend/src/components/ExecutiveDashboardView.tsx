@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Finding } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, Shield, DollarSign, Activity, CheckCircle, XCircle, AlertCircle, X, Info, Download, Clock, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Shield, DollarSign, Activity, CheckCircle, XCircle, AlertCircle, X, Info, Clock, BarChart3 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, LineChart, Line, Treemap } from 'recharts';
 import {
     getExecutiveMetrics,
@@ -18,16 +18,13 @@ import {
     generateHeatMapData,
     generateSankeyData,
     generateTreemapData,
-    generateSparklineData,
-    exportToCSV,
-    downloadCSV,
-    exportExecutiveSummary,
-    downloadJSON
+    generateSparklineData
 } from '../lib/analytics';
 
 import Sparkline from './Sparkline';
 import CustomTreemapContent from './CustomTreemapContent';
 import DrillDownModal from './DrillDownModal';
+import ExportDropdown from './ExportDropdown';
 
 interface ExecutiveDashboardViewProps {
     findings: Finding[];
@@ -65,25 +62,7 @@ export default function ExecutiveDashboardView({ findings }: ExecutiveDashboardV
     const aiSparkline = generateSparklineData(findings.filter(f => f.type === 'endpoint'), 12);
 
     // Export handlers
-    const handleExportCSV = () => {
-        const csv = exportToCSV(findings);
-        downloadCSV(csv, `findings-${new Date().toISOString().split('T')[0]}.csv`);
-    };
 
-    const handleExportJSON = () => {
-        const data = {
-            metrics,
-            summary,
-            topRisks,
-            businessImpacts,
-            complianceFrameworks,
-            costBreakdown,
-            timeComparison,
-            generatedAt: new Date().toISOString()
-        };
-        const json = exportExecutiveSummary(data);
-        downloadJSON(json, `executive-summary-${new Date().toISOString().split('T')[0]}.json`);
-    };
 
     const handleChartClick = (data: any) => {
         if (data && data.activePayload && data.activePayload.length > 0) {
@@ -211,7 +190,7 @@ export default function ExecutiveDashboardView({ findings }: ExecutiveDashboardV
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6" id="executive-dashboard-content">
             {/* Executive Summary */}
             <Card className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-indigo-500/30">
                 <CardHeader>
@@ -226,21 +205,8 @@ export default function ExecutiveDashboardView({ findings }: ExecutiveDashboardV
             </Card>
 
             {/* Export Buttons */}
-            <div className="flex justify-end gap-3">
-                <button
-                    onClick={handleExportCSV}
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2 border border-gray-700"
-                >
-                    <Download className="w-4 h-4" />
-                    Export CSV
-                </button>
-                <button
-                    onClick={handleExportJSON}
-                    className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors flex items-center gap-2"
-                >
-                    <Download className="w-4 h-4" />
-                    Export Report
-                </button>
+            <div className="flex justify-end">
+                <ExportDropdown findings={findings} elementIdToCapture="executive-dashboard-content" />
             </div>
 
 
