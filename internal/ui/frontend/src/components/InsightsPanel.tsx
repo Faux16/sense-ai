@@ -9,7 +9,9 @@ import {
     predictNextHour,
     calculateSeverityDistribution,
 } from '../lib/insights';
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, Lightbulb, Activity, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, Lightbulb, Activity, BarChart3, Download } from 'lucide-react';
+import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 
 interface InsightsPanelProps {
     findings: Finding[];
@@ -23,6 +25,15 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
     const [recommendations, setRecommendations] = useState(generateRecommendations(findings));
     const [prediction, setPrediction] = useState(predictNextHour(findings));
     const [distribution, setDistribution] = useState(calculateSeverityDistribution(findings));
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsLoading(true);
+            const timer = setTimeout(() => setIsLoading(false), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         setRiskScore(generateRiskScore(findings));
@@ -33,6 +44,141 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
     }, [findings]);
 
     if (!isOpen) return null;
+
+    if (isLoading) {
+        return (
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-50 flex flex-col items-center justify-center p-4 animate-in fade-in duration-300" onClick={onClose}>
+                {/* Animated background particles */}
+                <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(20)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute w-1 h-1 bg-indigo-400/30 rounded-full animate-pulse"
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                                animationDelay: `${Math.random() * 2}s`,
+                                animationDuration: `${2 + Math.random() * 3}s`
+                            }}
+                        />
+                    ))}
+                </div>
+
+                {/* Main loader container */}
+                <div className="relative z-10">
+                    {/* Outer rotating ring */}
+                    <div className="absolute inset-0 -m-16">
+                        <div className="w-64 h-64 rounded-full border-2 border-transparent border-t-indigo-500/50 border-r-purple-500/50 animate-spin" style={{ animationDuration: '3s' }}></div>
+                    </div>
+
+                    {/* Middle rotating ring */}
+                    <div className="absolute inset-0 -m-12">
+                        <div className="w-56 h-56 rounded-full border-2 border-transparent border-b-cyan-500/50 border-l-purple-500/50 animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}></div>
+                    </div>
+
+                    {/* Inner pulsing rings */}
+                    <div className="absolute inset-0 -m-8">
+                        <div className="w-48 h-48 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 animate-ping" style={{ animationDuration: '2s' }}></div>
+                    </div>
+
+                    <div className="absolute inset-0 -m-6">
+                        <div className="w-44 h-44 rounded-full bg-gradient-to-r from-purple-500/30 to-cyan-500/30 animate-pulse"></div>
+                    </div>
+
+                    {/* Logo container with glow */}
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 blur-2xl opacity-50 animate-pulse"></div>
+                        <div className="relative bg-black/50 backdrop-blur-sm rounded-full p-8 border border-indigo-500/30">
+                            <img
+                                src={`${import.meta.env.BASE_URL}logo_collapse.png`}
+                                alt="SENSE AI"
+                                className="w-24 h-24 relative z-10 drop-shadow-2xl"
+                                style={{
+                                    filter: 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.5))',
+                                    animation: 'float 3s ease-in-out infinite'
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Scanning beam effect */}
+                    <div className="absolute inset-0 -m-8 overflow-hidden rounded-full">
+                        <div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"
+                            style={{
+                                animation: 'scan 2s linear infinite',
+                                transformOrigin: 'center'
+                            }}
+                        ></div>
+                    </div>
+                </div>
+
+                {/* Text content */}
+                <div className="mt-16 text-center relative z-10">
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2"
+                        style={{
+                            backgroundSize: '200% auto',
+                            animation: 'gradient 3s linear infinite'
+                        }}>
+                        Analyzing Shadow AI Activity
+                    </h2>
+                    <p className="text-sm text-gray-400 animate-pulse">
+                        Scanning network patterns • Detecting anomalies • Generating insights
+                    </p>
+                </div>
+
+                {/* Progress indicators */}
+                <div className="mt-8 flex gap-2 relative z-10">
+                    {[...Array(5)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                            style={{
+                                animation: 'bounce 1.4s ease-in-out infinite',
+                                animationDelay: `${i * 0.15}s`
+                            }}
+                        ></div>
+                    ))}
+                </div>
+
+                {/* Loading percentage */}
+                <div className="mt-6 relative z-10">
+                    <div className="flex items-center gap-3">
+                        <div className="w-48 h-1 bg-gray-800 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-full"
+                                style={{
+                                    animation: 'progress 2s ease-in-out infinite',
+                                    backgroundSize: '200% 100%'
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* CSS animations */}
+                <style>{`
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px) rotate(0deg); }
+                        50% { transform: translateY(-10px) rotate(5deg); }
+                    }
+                    @keyframes scan {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    @keyframes gradient {
+                        0% { background-position: 0% center; }
+                        100% { background-position: 200% center; }
+                    }
+                    @keyframes progress {
+                        0% { width: 0%; background-position: 0% center; }
+                        50% { width: 100%; background-position: 100% center; }
+                        100% { width: 100%; background-position: 200% center; }
+                    }
+                `}</style>
+            </div>
+        );
+    }
 
     const getRiskColor = (level: string) => {
         switch (level) {
@@ -60,6 +206,154 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
         }
     };
 
+    const handleDownloadPDF = async () => {
+        const element = document.getElementById('insights-content');
+        if (!element) return;
+
+        // Create a loading state or feedback if needed
+        const originalText = document.body.style.cursor;
+        document.body.style.cursor = 'wait';
+
+        try {
+            // Create a clone of the element to manipulate for capture
+            const clone = element.cloneNode(true) as HTMLElement;
+
+            // Create a wrapper to hold the header and the content
+            const wrapper = document.createElement('div');
+            // Position fixed at 0,0 but behind everything to ensure it's "on screen" for capture
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.width = '800px'; // Fixed width for consistent PDF
+            wrapper.style.background = '#000000'; // Ensure solid background
+            wrapper.style.color = '#ffffff';
+            wrapper.style.fontFamily = 'Inter, sans-serif';
+            wrapper.style.padding = '40px';
+            wrapper.style.zIndex = '-9999'; // Behind everything
+            wrapper.style.visibility = 'visible'; // Must be visible to be captured
+
+            // Create Branded Header
+            const header = document.createElement('div');
+            header.style.display = 'flex';
+            header.style.alignItems = 'center';
+            header.style.justifyContent = 'space-between';
+            header.style.marginBottom = '30px';
+            header.style.borderBottom = '1px solid rgba(99, 102, 241, 0.3)';
+            header.style.paddingBottom = '20px';
+
+            // Logo Section
+            const logoContainer = document.createElement('div');
+            logoContainer.style.display = 'flex';
+            logoContainer.style.alignItems = 'center';
+            logoContainer.style.gap = '15px';
+
+            const logoImg = document.createElement('img');
+            logoImg.src = `${import.meta.env.BASE_URL}logo_collapse.png`;
+            logoImg.style.width = '40px';
+            logoImg.style.height = '40px';
+
+            const titleContainer = document.createElement('div');
+            const title = document.createElement('h1');
+            title.innerText = 'SENSE AI';
+            title.style.fontSize = '24px';
+            title.style.fontWeight = 'bold';
+            title.style.background = 'linear-gradient(to right, #818cf8, #c084fc, #22d3ee)';
+            title.style.webkitBackgroundClip = 'text';
+            title.style.webkitTextFillColor = 'transparent';
+            title.style.margin = '0';
+
+            const subtitle = document.createElement('p');
+            subtitle.innerText = 'Shadow Exposure & Enterprise Surveillance';
+            subtitle.style.fontSize = '10px';
+            subtitle.style.color = '#9ca3af';
+            subtitle.style.margin = '0';
+
+            titleContainer.appendChild(title);
+            titleContainer.appendChild(subtitle);
+            logoContainer.appendChild(logoImg);
+            logoContainer.appendChild(titleContainer);
+
+            // Report Info Section
+            const reportInfo = document.createElement('div');
+            reportInfo.style.textAlign = 'right';
+
+            const reportTitle = document.createElement('h2');
+            reportTitle.innerText = 'AI Security Insights Report';
+            reportTitle.style.fontSize = '16px';
+            reportTitle.style.fontWeight = '600';
+            reportTitle.style.color = '#e5e7eb';
+            reportTitle.style.margin = '0 0 5px 0';
+
+            const date = document.createElement('p');
+            date.innerText = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            date.style.fontSize = '12px';
+            date.style.color = '#9ca3af';
+            date.style.margin = '0';
+
+            reportInfo.appendChild(reportTitle);
+            reportInfo.appendChild(date);
+
+            header.appendChild(logoContainer);
+            header.appendChild(reportInfo);
+
+            // Add header and content to wrapper
+            wrapper.appendChild(header);
+
+            // Style the clone content to fit nicely
+            clone.style.background = 'transparent';
+            clone.style.padding = '0';
+            clone.style.margin = '0';
+
+            wrapper.appendChild(clone);
+
+            // Append to body to render
+            document.body.appendChild(wrapper);
+
+            // Wait for any images/fonts in clone to settle
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const dataUrl = await toPng(wrapper, {
+                quality: 1.0,
+                pixelRatio: 2, // Higher resolution
+                backgroundColor: '#000000',
+            });
+
+            // Remove wrapper
+            document.body.removeChild(wrapper);
+
+            // Get image properties to determine dimensions
+            // We create a temporary PDF just to get the image properties helper
+            const tempPdf = new jsPDF();
+            const imgProps = tempPdf.getImageProperties(dataUrl);
+
+            // Create the actual PDF with dimensions matching the image
+            // This ensures it's always one page, regardless of length
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [imgProps.width, imgProps.height]
+            });
+
+            // Set PDF background to black (for the whole custom page)
+            pdf.setFillColor(0, 0, 0);
+            pdf.rect(0, 0, imgProps.width, imgProps.height, 'F');
+
+            pdf.addImage(dataUrl, 'PNG', 0, 0, imgProps.width, imgProps.height);
+            pdf.save(`SENSE_AI_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert("Failed to generate PDF. Please try again.");
+        } finally {
+            document.body.style.cursor = originalText;
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
             <Card
@@ -79,16 +373,25 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
                                 <p className="text-xs text-gray-400 mt-1">Real-time risk analysis and recommendations</p>
                             </div>
                         </div>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-400 hover:text-white transition-colors"
-                        >
-                            ✕
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 rounded-md hover:bg-indigo-500/20 transition-colors"
+                            >
+                                <Download className="w-3 h-3" />
+                                Download Report
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="text-gray-400 hover:text-white transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
                 </CardHeader>
 
-                <CardContent className="p-6 space-y-6">
+                <CardContent id="insights-content" className="p-6 space-y-6">
                     {/* Risk Score Section */}
                     <div>
                         <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
@@ -184,10 +487,10 @@ export default function InsightsPanel({ findings, isOpen, onClose }: InsightsPan
                                     <div
                                         key={i}
                                         className={`p-3 rounded-lg border ${anomaly.severity === 'high'
-                                                ? 'bg-red-500/10 border-red-500/30'
-                                                : anomaly.severity === 'medium'
-                                                    ? 'bg-orange-500/10 border-orange-500/30'
-                                                    : 'bg-yellow-500/10 border-yellow-500/30'
+                                            ? 'bg-red-500/10 border-red-500/30'
+                                            : anomaly.severity === 'medium'
+                                                ? 'bg-orange-500/10 border-orange-500/30'
+                                                : 'bg-yellow-500/10 border-yellow-500/30'
                                             }`}
                                     >
                                         <div className="flex items-start justify-between gap-3">

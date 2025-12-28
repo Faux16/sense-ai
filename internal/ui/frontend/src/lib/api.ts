@@ -6,7 +6,10 @@ export const api = {
     async getFindings(): Promise<Finding[]> {
         const res = await fetch(`${API_BASE}/findings`);
         if (!res.ok) throw new Error('Failed to fetch findings');
-        return res.json() as Promise<Finding[]>;
+
+        const data = await res.json();
+        return data || [];
+ main
     },
 
     createEventSource(): EventSource {

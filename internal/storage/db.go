@@ -68,7 +68,7 @@ func (s *Store) GetFindings() ([]Finding, error) {
 	}
 	defer rows.Close()
 
-	var list []Finding
+	list := make([]Finding, 0)
 	for rows.Next() {
 		var f Finding
 		var ts string

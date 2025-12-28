@@ -1,24 +1,59 @@
-# SENSE: Shadow Exposure & eNterprise Surveillance for AI
+<div align="center">
+  <img src="sense_logo.png" alt="SENSE Logo" width="200"/>
+  <h1>SENSE: Shadow Exposure & eNterprise Surveillance for AI</h1>
+  
+  [![Go Version](https://img.shields.io/badge/Go-1.23.2+-00ADD8?style=flat&logo=go)](https://go.dev/)
+  [![PyPI version](https://badge.fury.io/py/senseai.svg)](https://pypi.org/project/senseai/)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg)](https://www.apple.com/macos/)
+  [![BlackHat MEA 2025](https://img.shields.io/badge/BlackHat%20MEA-2025-black?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==)](https://blackhatmea.com/speaker/sanket-sarkar)
+</div>
 
-SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool designed to detect and monitor unauthorized or "shadow" AI instances within enterprise environments. By analyzing network traffic and endpoint processes, SENSE identifies potential AI-related activities, such as API calls to external AI services (e.g., OpenAI, Hugging Face) or local AI model execution. This enhances enterprise visibility and mitigates risks associated with unapproved AI usage.
+<br />
 
-> This project is under active development for presentation at Black Hat MEA, focusing on robust detection of shadow AI in enterprise networks.
+**SENSE** (Shadow Exposure & eNterprise Surveillance for AI) is a comprehensive security tool designed to detect and monitor unauthorized or "shadow" AI instances within enterprise environments. By analyzing network traffic and endpoint processes, SENSE identifies potential AI-related activities, such as API calls to external AI services (e.g., OpenAI, Hugging Face) or local AI model execution. This enhances enterprise visibility and mitigates risks associated with unapproved AI usage.
+
+> **Note**: This project was presented at BlackHat MEA 2025, focusing on robust detection of shadow AI in enterprise networks.
+
+## 📸 Demo
+
+<div align="center">
+  <img src="Sense-ai.png" alt="SENSE Dashboard Demo" width="800"/>
+</div>
 
 ---
 
-## Features
+## 📋 Table of Contents
 
-- **Network Traffic Analysis**: Captures HTTP/HTTPS traffic using libpcap and gopacket to detect AI API calls (e.g., `api.openai.com`, `api.huggingface.co`).
+- [Features](#-features)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Troubleshooting](#-troubleshooting)
+- [Project Structure](#-project-structure)
+- [License](#-license)
+
+---
+
+## 🚀 Features
+
+- **Network Traffic Analysis**: Captures HTTP/HTTPS traffic using `libpcap` and `gopacket` to detect AI API calls (e.g., `api.openai.com`, `api.huggingface.co`).
 - **Endpoint Scanning**: Simulates detection of AI-related processes (e.g., Python with TensorFlow) via a placeholder implementation.
 - **REST API**: Exposes findings through a JSON-based API (`/findings`) powered by Gin.
 - **Real-time Dashboard**: A modern React-based UI to visualize findings, network traffic, and threat levels.
 - **SQLite Storage**: Logs findings with details (source/destination IPs, ports, headers, severity) in a local SQLite database.
 - **Command-Line Interface**: Built with Cobra for easy scanning (`sense scan`) and API server management (`sense api`).
+- **Python Wrapper**: Easy-to-use Python package available on PyPI for seamless integration.
 
 ---
 
-## Prerequisites
+## 🛠 Prerequisites
 
+### For Python Package (Recommended)
+- **Python**: Version 3.8 or later
+- **libpcap**: Version 1.10.5 or later (for network scanning)
+
+### For Building from Source
 - **Go**: Version 1.23.2 or later
 - **Node.js**: Version 18 or later (for Frontend)
 - **libpcap**: Version 1.10.5 or later (installed via Homebrew on macOS)
@@ -26,9 +61,43 @@ SENSE (Shadow Exposure & eNterprise Surveillance for AI) is a security tool desi
 
 ---
 
-## Installation
+## 📦 Installation
 
-### 1. Clone the Repository
+### Option 1: Python Package (Recommended)
+
+Install via pip:
+```bash
+pip install senseai
+```
+
+Then use the CLI:
+```bash
+# Start the backend server
+senseai start --port 8080
+
+# Check status
+senseai status
+
+# View findings
+senseai findings
+```
+
+Or use the Python API:
+```python
+from senseai import SenseClient, SenseServer
+
+# Start server and fetch findings
+with SenseServer(port=8080) as server:
+    client = SenseClient()
+    findings = client.get_findings()
+    print(f"Found {len(findings)} findings")
+```
+
+For more details, see the [Python package documentation](python/README.md).
+
+### Option 2: Build from Source
+
+#### 1. Clone the Repository
 ```bash
 git clone https://github.com/Faux16/sense-ai.git
 cd sense-ai
@@ -61,7 +130,7 @@ go build -o sense cmd/sense/main.go
 
 ---
 
-## Usage
+## 💻 Usage
 
 ### 1. Start the Frontend
 Open a terminal and run:
@@ -91,7 +160,7 @@ Runs without network scanning (Endpoint detection only).
 
 ---
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 ### Database Permission Errors
 If you see `attempt to write a readonly database` or `permission denied`:
@@ -108,7 +177,7 @@ If you see `permission denied` for `/dev/bpf0`:
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 ```
 cmd/sense/      # Entry point (main.go)
 internal/
@@ -122,5 +191,5 @@ internal/
 
 ---
 
-## License
+## 📄 License
 MIT License.
