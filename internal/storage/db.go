@@ -55,7 +55,10 @@ func (s *Store) LogFinding(f Finding) error {
 		"INSERT INTO findings (type, details, source, timestamp, severity) VALUES (?, ?, ?, ?, ?)",
 		f.Type, f.Details, f.Source, ts, f.Severity,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to log finding (type=%s, severity=%.2f): %w", f.Type, f.Severity, err)
+	}
+	return nil
 }
 
 func (s *Store) GetFindings() ([]Finding, error) {
