@@ -6,124 +6,63 @@
   [![PyPI version](https://badge.fury.io/py/senseai.svg)](https://pypi.org/project/senseai/)
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg)](https://www.apple.com/macos/)
-  [![BlackHat MEA 2025](https://img.shields.io/badge/BlackHat%20MEA-2025-black?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==)](https://blackhatmea.com/speaker/sanket-sarkar)
 </div>
 
 <br />
 
-**SENSE** (Shadow Exposure & eNterprise Surveillance for AI) is a comprehensive security tool designed to detect and monitor unauthorized or "shadow" AI instances within enterprise environments. By analyzing network traffic and endpoint processes, SENSE identifies potential AI-related activities, such as API calls to external AI services (e.g., OpenAI, Hugging Face) or local AI model execution. This enhances enterprise visibility and mitigates risks associated with unapproved AI usage.
+**SENSE** (Shadow Exposure & eNterprise Surveillance for AI) is an advanced **AI Security Platform** designed to monitor, control, and secure AI adoption within the enterprise. It features a transparent **AI Gateway** that intercepts and inspects LLM traffic, enforcing granular security policies for Data Loss Prevention (DLP) and Prompt Injection protection.
 
-> **Note**: This project was presented at BlackHat MEA 2025, focusing on robust detection of shadow AI in enterprise networks.
-
-## 📸 Demo
-
-<div align="center">
-  <img src="Sense-ai.png" alt="SENSE Dashboard Demo" width="800"/>
-</div>
+> **Note**: This project was presented at BlackHat MEA 2025.
 
 ---
 
-## 📋 Table of Contents
+## 🚀 Key Features
 
-- [Features](#-features)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Troubleshooting](#-troubleshooting)
-- [Project Structure](#-project-structure)
-- [License](#-license)
+### 🛡️ AI Gateway
+*   **Transparent Proxy**: Routes traffic to OpenAI, Anthropic, or Local LLMs (Ollama) seamlessly.
+*   **Policy Enforcement**: Blocks malicious requests (e.g., Prompt Injection) and prevents sensitive data leaks (DLP) in real-time.
+*   **Dynamic Configuration**: Manage routes and backends directly from the UI without restarts.
 
----
+### 🧠 Policy Management
+*   **Visual Policy Editor**: Create, edit, and toggle security rules via the Dashboard.
+*   **Granular Control**: Define rules based on JSON keys (`messages`, `prompt`), Regex patterns, or Keywords.
+*   **Actionable Insights**: Choose between `Alert` (observe) or `Block` (enforce) modes.
 
-## 🚀 Features
-
-- **Network Traffic Analysis**: Captures HTTP/HTTPS traffic using `libpcap` and `gopacket` to detect AI API calls (e.g., `api.openai.com`, `api.huggingface.co`).
-- **Endpoint Scanning**: Simulates detection of AI-related processes (e.g., Python with TensorFlow) via a placeholder implementation.
-- **REST API**: Exposes findings through a JSON-based API (`/findings`) powered by Gin.
-- **Real-time Dashboard**: A modern React-based UI to visualize findings, network traffic, and threat levels.
-- **SQLite Storage**: Logs findings with details (source/destination IPs, ports, headers, severity) in a local SQLite database.
-- **Command-Line Interface**: Built with Cobra for easy scanning (`sense scan`) and API server management (`sense api`).
-- **Python Wrapper**: Easy-to-use Python package available on PyPI for seamless integration.
+### 🔍 Visibility & Detection
+*   **Network Analysis**: Passive sniffing (`libpcap`) to detect unauthorized "Shadow AI" API calls.
+*   **Real-time Dashboard**: Visualizes blocked threats, top users, and policy effectiveness.
+*   **Activity Logs**: Detailed audit trail of every intercepted request and violation.
 
 ---
 
 ## 🛠 Prerequisites
 
-### For Python Package (Recommended)
-- **Python**: Version 3.8 or later
-- **libpcap**: Version 1.10.5 or later (for network scanning)
-
-### For Building from Source
-- **Go**: Version 1.23.2 or later
-- **Node.js**: Version 18 or later (for Frontend)
-- **libpcap**: Version 1.10.5 or later (installed via Homebrew on macOS)
-- **macOS**: Tested on Apple Silicon (M1/M2)
+*   **Go**: Version 1.23+
+*   **Node.js**: Version 18+ (for Frontend)
+*   **libpcap**: Required for network capture (`brew install libpcap` on macOS).
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Setup
 
-### Option 1: Python Package (Recommended)
-
-Install via pip:
-```bash
-pip install senseai
-```
-
-Then use the CLI:
-```bash
-# Start the backend server
-senseai start --port 8080
-
-# Check status
-senseai status
-
-# View findings
-senseai findings
-```
-
-Or use the Python API:
-```python
-from senseai import SenseClient, SenseServer
-
-# Start server and fetch findings
-with SenseServer(port=8080) as server:
-    client = SenseClient()
-    findings = client.get_findings()
-    print(f"Found {len(findings)} findings")
-```
-
-For more details, see the [Python package documentation](python/README.md).
-
-### Option 2: Build from Source
-
-#### 1. Clone the Repository
+### 1. Clone Repository
 ```bash
 git clone https://github.com/Faux16/sense-ai.git
 cd sense-ai
 ```
 
-### 2. Install Backend Dependencies
+### 2. Install Dependencies
 ```bash
+# Backend
 go mod tidy
-```
 
-### 3. Install Frontend Dependencies
-```bash
+# Frontend
 cd internal/ui/frontend
 npm install
 cd ../../..
 ```
 
-### 4. Install libpcap (macOS)
-```bash
-brew install libpcap
-export PKG_CONFIG_PATH=/opt/homebrew/Cellar/libpcap/1.10.5/lib/pkgconfig:$PKG_CONFIG_PATH
-export CGO_CFLAGS="-I/opt/homebrew/Cellar/libpcap/1.10.5/include"
-export CGO_LDFLAGS="-L/opt/homebrew/Cellar/libpcap/1.10.5/lib"
-```
-
-### 5. Build SENSE Backend
+### 3. Build Backend
 ```bash
 go build -o sense cmd/sense/main.go
 ```
@@ -132,61 +71,47 @@ go build -o sense cmd/sense/main.go
 
 ## 💻 Usage
 
-### 1. Start the Frontend
-Open a terminal and run:
+### Quick Start (Recommended)
+We provide a helper script to start both the **Gateway** and **Monitoring Engine** with the necessary permissions:
+
 ```bash
-cd internal/ui/frontend
-npm run dev
+./scripts/start.sh
 ```
-The UI will be available at [http://localhost:5173/ui/](http://localhost:5173/ui/).
+*Note: This script uses `sudo` to enable network packet capture.*
 
-### 2. Start the Backend
-You can run the backend in two modes:
+### Access the Dashboard
+Open your browser to: **[http://localhost:5173/ui/](http://localhost:5173/ui/)**
 
-#### Mode A: Full Functionality (Requires Sudo)
-Enables network traffic analysis. Requires root privileges to capture packets.
-```bash
-# Use /tmp/sense.db to avoid permission issues with root
-sudo ./sense api --port 8080 --db /tmp/sense.db
+### Using the Gateway
+Direct your AI Client (e.g., LangChain, Python `openai` lib) to the Gateway:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:8081/v1", # Point to SENSE Gateway
+    api_key="unused" 
+)
+
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
 ```
-
-#### Mode B: Limited Functionality (No Sudo)
-Runs without network scanning (Endpoint detection only).
-```bash
-./sense api --port 8080 --db /tmp/sense.db
-```
-
-> **Note**: We use `--db /tmp/sense.db` to avoid file permission conflicts between `sudo` and user execution.
-
----
-
-## 🔧 Troubleshooting
-
-### Database Permission Errors
-If you see `attempt to write a readonly database` or `permission denied`:
-1. Use the `--db /tmp/sense.db` flag as shown above.
-2. Or, fix ownership of the local DB: `sudo chown $(whoami) sense.db`.
-
-### Network Scanning Fails
-If you see `permission denied` for `/dev/bpf0`:
-- You must run the backend with `sudo`.
-
-### Frontend "Black Screen"
-- Ensure you are accessing the correct URL: `http://localhost:5173/ui/`.
-- Check the browser console for errors.
 
 ---
 
 ## 📂 Project Structure
 ```
-cmd/sense/      # Entry point (main.go)
+cmd/sense/      # Main entry point (Engine + API)
 internal/
-  ├── action/   # Remediation logic (block IP, kill process)
-  ├── api/      # REST API server
-  ├── detector/ # Network and Endpoint detectors
-  ├── policy/   # Policy engine and rules
-  ├── storage/  # SQLite database handler
-  └── ui/       # Frontend React application
+  ├── gateway/  # AI Gateway Proxy implementation
+  ├── policy/   # Policy Engine (DLP/Injection checks)
+  ├── api/      # REST API configuration endpoints
+  └── ui/       # React Frontend (Dashboard & Editors)
+scripts/        # Startup and testing scripts
+policies.yaml   # Default security policies
+gateway.yaml    # Routing configuration
 ```
 
 ---

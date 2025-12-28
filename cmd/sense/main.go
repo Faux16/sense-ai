@@ -11,6 +11,7 @@ import (
 	"senseai/internal/action"
 	"senseai/internal/api"
 	"senseai/internal/detector"
+	"senseai/internal/gateway"
 	"senseai/internal/policy"
 	"senseai/internal/storage"
 
@@ -18,9 +19,10 @@ import (
 )
 
 var (
-	iface      string
-	port       string
-	policyFile string
+	iface         string
+	port          string
+	policyFile    string
+	gatewayConfig string
 )
 
 func main() {
@@ -35,6 +37,17 @@ func main() {
 	rootCmd.Flags().StringVarP(&policyFile, "policies", "c", "policies.yaml", "Path to policies file")
 	var dbPath string
 	rootCmd.Flags().StringVarP(&dbPath, "db", "d", "sense.db", "Path to database file")
+
+	gatewayCmd := &cobra.Command{
+		Use:   "gateway",
+		Short: "Start the AI Gateway Router",
+		Run:   runGateway,
+	}
+	gatewayCmd.Flags().StringVarP(&gatewayConfig, "config", "C", "gateway.yaml", "Path to gateway config")
+	rootCmd.AddCommand(gatewayCmd)
+
+	// Also allow config flag on root for API server access
+	rootCmd.Flags().StringVarP(&gatewayConfig, "gateway-config", "C", "gateway.yaml", "Path to gateway config")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -64,7 +77,8 @@ func runSense(cmd *cobra.Command, args []string) {
 	remediator := action.NewRemediator(false) // Set to true for dry-run mode
 
 	// 4. Initialize API Server
-	server := api.NewServer(store)
+	// 4. Initialize API Server
+	server := api.NewServer(store, gatewayConfig, policyFile)
 
 	// 5. Define Finding Handler
 	handler := func(typ, details, source string, sev float64, rule *policy.Rule) {
@@ -155,4 +169,37 @@ func runSense(cmd *cobra.Command, args []string) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	fmt.Println("Shutting down SENSE...")
+}
+
+func runGateway(cmd *cobra.Command, args []string) {
+	// 1. Load Gateway Config
+	cfg, err := gateway.LoadConfig(gatewayConfig)
+	if err != nil {
+		fmt.Printf("Failed to load gateway config: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 2. Initialize Storage (same DB as main)
+	dbPath, _ := cmd.Flags().GetString("db")
+	store, err := storage.NewStore(dbPath)
+	if err != nil {
+		fmt.Printf("Failed to initialize database: %v\n", err)
+		os.Exit(1)
+	}
+	defer store.Close()
+
+	// 3. Load Policy Engine
+	engine, err := policy.NewEngine(policyFile)
+	if err != nil {
+		fmt.Printf("Failed to load policies: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Loaded %d policies from %s\n", len(engine.Rules), policyFile)
+
+	// 4. Start Gateway
+	gw := gateway.NewGateway(cfg, engine, store)
+	if err := gw.Start(); err != nil {
+		fmt.Printf("Gateway failed: %v\n", err)
+		os.Exit(1)
+	}
 }

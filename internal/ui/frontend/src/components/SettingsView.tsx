@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Server, Bell, Palette, Database, Info, CheckCircle, XCircle } from 'lucide-react';
+import GatewayConfigEditor from './GatewayConfigEditor';
 
 export default function SettingsView() {
     const [notifications, setNotifications] = useState(true);
@@ -164,6 +165,9 @@ export default function SettingsView() {
             </Card>
 
             {/* API Configuration */}
+            <GatewayConfigEditor />
+
+            {/* API Configuration (Existing) */}
             <Card className="bg-black/80 backdrop-blur-lg border-gray-900">
                 <CardHeader>
                     <CardTitle className="text-lg bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2">

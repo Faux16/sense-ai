@@ -11,6 +11,7 @@ import InsightsPanel from './components/InsightsPanel';
 import FindingsView from './components/FindingsView';
 import PoliciesView from './components/PoliciesView';
 import NetworkMapView from './components/NetworkMapView';
+import GatewayView from './components/GatewayView';
 import ActivityLogView from './components/ActivityLogView';
 import SettingsView from './components/SettingsView';
 import ExecutiveDashboardView from './components/ExecutiveDashboardView';
@@ -466,6 +467,7 @@ export default function Dashboard() {
                         {currentSection === 'findings' && <FindingsView findings={findings} />}
                         {currentSection === 'policies' && <PoliciesView findings={findings} />}
                         {currentSection === 'network' && <NetworkMapView findings={findings} />}
+                        {currentSection === 'gateway' && <GatewayView findings={findings} />}
                         {currentSection === 'activity' && <ActivityLogView findings={findings} />}
                         {currentSection === 'settings' && <SettingsView />}
                     </div>

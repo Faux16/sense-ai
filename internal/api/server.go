@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 
+	"senseai/internal/gateway"
+	"senseai/internal/policy"
 	"senseai/internal/storage"
 	"senseai/internal/ui"
 
@@ -13,15 +15,19 @@ import (
 )
 
 type Server struct {
-	store     *storage.Store
-	subs      map[chan storage.Finding]struct{}
-	subsMutex sync.RWMutex
+	store      *storage.Store
+	configPath string
+	policyPath string
+	subs       map[chan storage.Finding]struct{}
+	subsMutex  sync.RWMutex
 }
 
-func NewServer(store *storage.Store) *Server {
+func NewServer(store *storage.Store, configPath, policyPath string) *Server {
 	return &Server{
-		store: store,
-		subs:  make(map[chan storage.Finding]struct{}),
+		store:      store,
+		configPath: configPath,
+		policyPath: policyPath,
+		subs:       make(map[chan storage.Finding]struct{}),
 	}
 }
 
@@ -56,8 +62,18 @@ func (s *Server) Start(port string) error {
 	r := gin.Default()
 
 	// CORS
+	// CORS
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
 		c.Next()
 	})
 
@@ -69,6 +85,51 @@ func (s *Server) Start(port string) error {
 			return
 		}
 		c.JSON(200, findings)
+	})
+
+	// Config Routes
+	r.GET("/config/gateway", func(c *gin.Context) {
+		cfg, err := gateway.LoadConfig(s.configPath)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, cfg)
+	})
+
+	r.POST("/config/gateway", func(c *gin.Context) {
+		var cfg gateway.Config
+		if err := c.BindJSON(&cfg); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		if err := gateway.SaveConfig(s.configPath, &cfg); err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, gin.H{"status": "saved"})
+	})
+
+	r.GET("/config/policies", func(c *gin.Context) {
+		engine, err := policy.NewEngine(s.policyPath)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, engine.Rules)
+	})
+
+	r.POST("/config/policies", func(c *gin.Context) {
+		var rules []policy.Rule
+		if err := c.BindJSON(&rules); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		if err := policy.SavePolicies(s.policyPath, rules); err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, gin.H{"status": "saved"})
 	})
 
 	r.GET("/stream", func(c *gin.Context) {

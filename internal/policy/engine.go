@@ -19,14 +19,29 @@ const (
 )
 
 type Rule struct {
-	Name          string   `yaml:"name"`
-	Description   string   `yaml:"description"`
-	Target        string   `yaml:"target"` // "network", "endpoint", "payload"
-	Match         []string `yaml:"match,omitempty"`
-	Regex         string   `yaml:"regex,omitempty"`
-	Action        Action   `yaml:"action"`
-	Severity      float64  `yaml:"severity"`
+	Name          string   `yaml:"name" json:"name"`
+	Description   string   `yaml:"description" json:"description"`
+	Target        string   `yaml:"target" json:"target"` // "network", "endpoint", "payload", "json_body"
+	Match         []string `yaml:"match,omitempty" json:"match,omitempty"`
+	Regex         string   `yaml:"regex,omitempty" json:"regex,omitempty"`
+	JsonKey       string   `yaml:"json_key,omitempty" json:"json_key,omitempty"` // e.g. "messages" or "prompt"
+	Action        Action   `yaml:"action" json:"action"`
+	Severity      float64  `yaml:"severity" json:"severity"`
 	regexCompiled *regexp.Regexp
+}
+
+func SavePolicies(path string, rules []Rule) error {
+	config := struct {
+		Policies []Rule `yaml:"policies"`
+	}{
+		Policies: rules,
+	}
+
+	data, err := yaml.Marshal(&config)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0644)
 }
 
 type Engine struct {
@@ -101,4 +116,63 @@ func (e *Engine) Evaluate(target, input string) *Rule {
 		}
 	}
 	return nil
+}
+
+// EvaluateJSON checks a map[string]interface{} against rules
+func (e *Engine) EvaluateJSON(data map[string]interface{}) *Rule {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	for _, rule := range e.Rules {
+		if rule.Target != "json_body" {
+			continue
+		}
+
+		// Extract value from JSON based on JsonKey
+		// Simple implementation: check if key exists at top level for now,
+		// or recursive search if needed. For LLM, we usually care about "messages" or "prompt"
+		val, ok := data[rule.JsonKey]
+		if !ok {
+			// If key not found, maybe search recursively?
+			// For now, simple top-level or specific structure support.
+			continue
+		}
+
+		// Convert value to string for matching
+		strVal := fmt.Sprintf("%v", val)
+
+		// If it's a list of messages (OpenAI format), we might need to iterate
+		if list, isList := val.([]interface{}); isList {
+			for _, item := range list {
+				// Naive string conversion of the whole object to search for patterns
+				// Ideally we'd drill down to "content"
+				itemStr := fmt.Sprintf("%v", item)
+				if e.matches(rule, itemStr) {
+					return &rule
+				}
+			}
+		} else {
+			if e.matches(rule, strVal) {
+				return &rule
+			}
+		}
+	}
+	return nil
+}
+
+func (e *Engine) matches(rule Rule, input string) bool {
+	input = strings.ToLower(input)
+
+	for _, m := range rule.Match {
+		if strings.Contains(input, strings.ToLower(m)) {
+			return true
+		}
+	}
+
+	if rule.regexCompiled != nil {
+		if rule.regexCompiled.MatchString(input) {
+			return true
+		}
+	}
+	return false
 }

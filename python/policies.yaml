@@ -1,0 +1,6 @@
+# Minimal policies file for testing
+policies:
+  - name: "Test Policy"
+    type: "network"
+    pattern: "test"
+    severity: 5

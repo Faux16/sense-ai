@@ -11,4 +11,36 @@ export const api = {
     createEventSource() {
         return new EventSource(`${API_BASE}/stream`);
     },
+
+    async getGatewayConfig() {
+        const res = await fetch(`${API_BASE}/config/gateway`);
+        if (!res.ok) throw new Error('Failed to fetch gateway config');
+        return res.json();
+    },
+
+    async saveGatewayConfig(config: any) {
+        const res = await fetch(`${API_BASE}/config/gateway`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config),
+        });
+        if (!res.ok) throw new Error('Failed to save gateway config');
+        return res.json();
+    },
+
+    async getPolicies() {
+        const res = await fetch(`${API_BASE}/config/policies`);
+        if (!res.ok) throw new Error('Failed to fetch policies');
+        return res.json();
+    },
+
+    async savePolicies(policies: any[]) {
+        const res = await fetch(`${API_BASE}/config/policies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(policies),
+        });
+        if (!res.ok) throw new Error('Failed to save policies');
+        return res.json();
+    }
 };

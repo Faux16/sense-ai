@@ -1,0 +1,7 @@
+server:
+    port: 8081
+routes:
+    - path: /v1/
+      target: https://api.openai.com
+      provider: openai
+      model: ""

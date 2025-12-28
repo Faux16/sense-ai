@@ -22,6 +22,7 @@ const menuItems = [
     { id: 'findings', label: 'Findings', icon: FileSearch },
     { id: 'policies', label: 'Policies', icon: Shield },
     { id: 'network', label: 'Network Map', icon: Globe },
+    { id: 'gateway', label: 'LLM Gateway', icon: Shield },
     { id: 'activity', label: 'Activity Log', icon: Activity },
     { id: 'settings', label: 'Settings', icon: Settings },
 ];

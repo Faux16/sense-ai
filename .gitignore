@@ -4,3 +4,9 @@ sense.db
 .DS_Store
 summary.md
 todo.md
+
+.env
+node_modules/
+dist/
+sense-agent
+sense-server

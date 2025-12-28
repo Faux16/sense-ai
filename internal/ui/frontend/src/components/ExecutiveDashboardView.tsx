@@ -206,7 +206,7 @@ export default function ExecutiveDashboardView({ findings }: ExecutiveDashboardV
 
             {/* Export Buttons */}
             <div className="flex justify-end">
-                <ExportDropdown findings={findings} elementIdToCapture="executive-dashboard-content" />
+                <ExportDropdown findings={findings} />
             </div>
 
 
