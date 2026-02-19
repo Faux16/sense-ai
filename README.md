@@ -6,6 +6,8 @@
   [![PyPI version](https://badge.fury.io/py/senseai.svg)](https://pypi.org/project/senseai/)
   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
   [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey.svg)](https://www.apple.com/macos/)
+
+  <a href="https://www.producthunt.com/products/sense-14?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-sense-0661c741-8984-4946-9e89-61e2866150c9" target="_blank" rel="noopener noreferrer"><img alt="Sense - Shadow Exposure &amp; eNterprise Surveillance for AI | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1081915&amp;theme=light&amp;t=1771478892684"></a>
 </div>
 
 <br />
@@ -18,20 +20,26 @@
 
 ## 🚀 Key Features
 
-### 🛡️ AI Gateway
+### 🛡️ Next-Gen AI Gateway
 *   **Transparent Proxy**: Routes traffic to OpenAI, Anthropic, or Local LLMs (Ollama) seamlessly.
 *   **Policy Enforcement**: Blocks malicious requests (e.g., Prompt Injection) and prevents sensitive data leaks (DLP) in real-time.
 *   **Dynamic Configuration**: Manage routes and backends directly from the UI without restarts.
 
-### 🧠 Policy Management
+### 📊 Advanced Visualization & Dashboard
+*   **Live World Map**: 3D visualization of global AI traffic and threat origins.
+*   **Executive Dashboard**: High-level metrics on AI adoption, risk posture, and policy violations.
+*   **Thirol Timeline**: Interactive timeline of blocked threats and anomalies.
+*   **Network Intelligence**: Visual graph of internal services communicating with external AI APIs.
+
+### 🧠 Intelligent Policy Management
 *   **Visual Policy Editor**: Create, edit, and toggle security rules via the Dashboard.
 *   **Granular Control**: Define rules based on JSON keys (`messages`, `prompt`), Regex patterns, or Keywords.
-*   **Actionable Insights**: Choose between `Alert` (observe) or `Block` (enforce) modes.
+*   **AI Insights**: Automated analysis of blocked requests to identify patterns and emerging threats.
 
-### 🔍 Visibility & Detection
-*   **Network Analysis**: Passive sniffing (`libpcap`) to detect unauthorized "Shadow AI" API calls.
-*   **Real-time Dashboard**: Visualizes blocked threats, top users, and policy effectiveness.
-*   **Activity Logs**: Detailed audit trail of every intercepted request and violation.
+### 🔍 Deep Visibility & Detection
+*   **Shadow AI Detection**: Passive sniffing (`libpcap`) to detect unauthorized "Shadow AI" API calls.
+*   **Real-time Activity Logs**: Detailed audit trail of every intercepted request and violation.
+*   **Process Monitoring**: Identify specific processes (e.g., `ollama`, python scripts) generating AI traffic.
 
 ---
 
